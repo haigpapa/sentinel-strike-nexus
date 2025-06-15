@@ -12,11 +12,15 @@ interface AssetNode {
   openPorts: number[];
   patchAgeDays: number;
   activeAlerts: string[];
-  position: [number, number, number]; // Using a 3D position vector now
+  position: [number, number, number];
 }
 
 // The individual Hexagon node component
-function HexNode({ node, onNodeClick, setHoveredNode }: { node: AssetNode, onNodeClick: (node: AssetNode) => void, setHoveredNode: (node: AssetNode | null) => void }) {
+function HexNode({ node, onNodeClick, setHoveredNode }: { 
+  node: AssetNode, 
+  onNodeClick: (node: AssetNode) => void, 
+  setHoveredNode: (node: AssetNode | null) => void 
+}) {
   const meshRef = useRef<THREE.Mesh>(null!);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -28,8 +32,10 @@ function HexNode({ node, onNodeClick, setHoveredNode }: { node: AssetNode, onNod
 
   // Animate the node slightly on hover
   useFrame((state, delta) => {
-    const scale = isHovered ? 1.5 : 1;
-    meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), delta * 10);
+    if (meshRef.current) {
+      const scale = isHovered ? 1.5 : 1;
+      meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), delta * 10);
+    }
   });
 
   return (
@@ -69,20 +75,26 @@ function HexNode({ node, onNodeClick, setHoveredNode }: { node: AssetNode, onNod
 function HexGrid({ width, height }: { width: number, height: number }) {
   const instancedMeshRef = useRef<THREE.InstancedMesh>(null!);
   const hexGeom = useMemo(() => new THREE.CylinderGeometry(1, 1, 0.1, 6), []);
-  const hexMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#6c7680', transparent: true, opacity: 0.1 }), []);
+  const hexMat = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: '#6c7680', 
+    transparent: true, 
+    opacity: 0.1 
+  }), []);
 
   useEffect(() => {
-    const dummy = new THREE.Object3D();
-    let i = 0;
-    for (let x = -width / 2; x < width / 2; x += 1.75) {
-      for (let y = -height / 2; y < height / 2; y += 1.5) {
-        const xPos = x + ((y % 3) * 0.875);
-        dummy.position.set(xPos, y, -0.5);
-        dummy.updateMatrix();
-        instancedMeshRef.current.setMatrixAt(i++, dummy.matrix);
+    if (instancedMeshRef.current) {
+      const dummy = new THREE.Object3D();
+      let i = 0;
+      for (let x = -width / 2; x < width / 2; x += 1.75) {
+        for (let y = -height / 2; y < height / 2; y += 1.5) {
+          const xPos = x + ((y % 3) * 0.875);
+          dummy.position.set(xPos, y, -0.5);
+          dummy.updateMatrix();
+          instancedMeshRef.current.setMatrixAt(i++, dummy.matrix);
+        }
       }
+      instancedMeshRef.current.instanceMatrix.needsUpdate = true;
     }
-    instancedMeshRef.current.instanceMatrix.needsUpdate = true;
   }, [width, height]);
 
   return <instancedMesh ref={instancedMeshRef} args={[hexGeom, hexMat, (width * height)]} />;
@@ -106,20 +118,20 @@ const AttackSurfaceMap: React.FC<{
     const area = nodeCount * 2;
 
     for (let i = 0; i < nodeCount; i++) {
-        const types: ('server' | 'iot' | 'saas')[] =
-          assetMode === 'Network' ? ['server', 'iot'] :
-          assetMode === 'Endpoint' ? ['server'] :
-          ['saas', 'server'];
+      const types: ('server' | 'iot' | 'saas')[] =
+        assetMode === 'Network' ? ['server', 'iot'] :
+        assetMode === 'Endpoint' ? ['server'] :
+        ['saas', 'server'];
 
-        newNodes.push({
-          id: `node-${i}`,
-          type: types[Math.floor(Math.random() * types.length)],
-          riskScore: Math.floor(Math.random() * 100),
-          openPorts: Array.from({ length: Math.floor(Math.random() * 5) }, () => Math.floor(Math.random() * 65535)),
-          patchAgeDays: Math.floor(Math.random() * 365),
-          activeAlerts: Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => `Alert ${i + 1}`),
-          position: [(Math.random() - 0.5) * area, (Math.random() - 0.5) * (area * 0.5), 0],
-        });
+      newNodes.push({
+        id: `node-${i}`,
+        type: types[Math.floor(Math.random() * types.length)],
+        riskScore: Math.floor(Math.random() * 100),
+        openPorts: Array.from({ length: Math.floor(Math.random() * 5) }, () => Math.floor(Math.random() * 65535)),
+        patchAgeDays: Math.floor(Math.random() * 365),
+        activeAlerts: Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => `Alert ${i + 1}`),
+        position: [(Math.random() - 0.5) * area, (Math.random() - 0.5) * (area * 0.5), 0],
+      });
     }
     setNodes(newNodes);
   }, [assetMode, zoomScope]);
@@ -143,13 +155,12 @@ const AttackSurfaceMap: React.FC<{
         
         <HexGrid width={mapWidth} height={mapHeight} />
 
-        {/* This is a simple way to handle split view. A more advanced implementation
-            could use two viewports, but this works for a visual representation. */}
+        {/* Simple split view representation */}
         {splitView && (
-            <mesh position={[0, 0, -0.1]}>
-                <planeGeometry args={[0.1, 100]} />
-                <meshBasicMaterial color="#6c7680" toneMapped={false} />
-            </mesh>
+          <mesh position={[0, 0, -0.1]}>
+            <planeGeometry args={[0.1, 100]} />
+            <meshBasicMaterial color="#6c7680" toneMapped={false} />
+          </mesh>
         )}
         
         {nodes.map(node => (
