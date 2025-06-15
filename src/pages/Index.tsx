@@ -24,8 +24,7 @@ interface AssetNode {
   openPorts: number[];
   patchAgeDays: number;
   activeAlerts: string[];
-  x: number;
-  y: number;
+  position: [number, number, number]; // Updated to match 3D position
 }
 
 const Index = () => {
