@@ -21,7 +21,7 @@ function HexNode({ node, onNodeClick, setHoveredNode }: {
   onNodeClick: (node: AssetNode) => void, 
   setHoveredNode: (node: AssetNode | null) => void 
 }) {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  const meshRef = useRef<THREE.Mesh | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   const color = useMemo(() => {
@@ -73,7 +73,7 @@ function HexNode({ node, onNodeClick, setHoveredNode }: {
 
 // The background hex grid using high-performance instancing
 function HexGrid({ width, height }: { width: number, height: number }) {
-  const instancedMeshRef = useRef<THREE.InstancedMesh>(null!);
+  const instancedMeshRef = useRef<THREE.InstancedMesh | null>(null);
   const hexGeom = useMemo(() => new THREE.CylinderGeometry(1, 1, 0.1, 6), []);
   const hexMat = useMemo(() => new THREE.MeshStandardMaterial({ 
     color: '#6c7680', 
