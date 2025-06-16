@@ -37,6 +37,3 @@ No environment variables are required for development or testing.
 
 ## Continuous integration
 A GitHub Actions workflow deploys the site to GitHub Pages. See [`.github/workflows/static.yml`](.github/workflows/static.yml) for details.
-
-## License
-This project is released under the [MIT License](LICENSE).
