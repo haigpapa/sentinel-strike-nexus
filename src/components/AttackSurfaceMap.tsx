@@ -15,6 +15,36 @@ interface AssetNode {
   position: [number, number, number];
 }
 
+export function getRiskColor(score: number): string {
+  if (score < 30) return '#23d18b';
+  if (score < 70) return '#f0c244';
+  return '#ff4f4f';
+}
+
+export function generateNodes(assetMode: string, zoomScope: string): AssetNode[] {
+  const nodeCount = zoomScope === 'Org-Wide' ? 150 : 50;
+  const newNodes: AssetNode[] = [];
+  const area = nodeCount * 2;
+
+  for (let i = 0; i < nodeCount; i++) {
+    const types: ('server' | 'iot' | 'saas')[] =
+      assetMode === 'Network' ? ['server', 'iot'] :
+      assetMode === 'Endpoint' ? ['server'] :
+      ['saas', 'server'];
+
+    newNodes.push({
+      id: `node-${i}`,
+      type: types[Math.floor(Math.random() * types.length)],
+      riskScore: Math.floor(Math.random() * 100),
+      openPorts: Array.from({ length: Math.floor(Math.random() * 5) }, () => Math.floor(Math.random() * 65535)),
+      patchAgeDays: Math.floor(Math.random() * 365),
+      activeAlerts: Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => `Alert ${i + 1}`),
+      position: [(Math.random() - 0.5) * area, (Math.random() - 0.5) * (area * 0.5), 0],
+    });
+  }
+  return newNodes;
+}
+
 // The individual Hexagon node component
 function HexNode({ node, onNodeClick, setHoveredNode }: { 
   node: AssetNode, 
@@ -24,11 +54,7 @@ function HexNode({ node, onNodeClick, setHoveredNode }: {
   const meshRef = useRef<THREE.Mesh>(null!);
   const [isHovered, setIsHovered] = useState(false);
 
-  const color = useMemo(() => {
-    if (node.riskScore < 30) return '#23d18b';
-    if (node.riskScore < 70) return '#f0c244';
-    return '#ff4f4f';
-  }, [node.riskScore]);
+  const color = useMemo(() => getRiskColor(node.riskScore), [node.riskScore]);
 
   // Animate the node slightly on hover
   useFrame((state, delta) => {
@@ -113,27 +139,7 @@ const AttackSurfaceMap: React.FC<{
 
   // Generate demo data
   useEffect(() => {
-    const nodeCount = zoomScope === 'Org-Wide' ? 150 : 50;
-    const newNodes: AssetNode[] = [];
-    const area = nodeCount * 2;
-
-    for (let i = 0; i < nodeCount; i++) {
-      const types: ('server' | 'iot' | 'saas')[] =
-        assetMode === 'Network' ? ['server', 'iot'] :
-        assetMode === 'Endpoint' ? ['server'] :
-        ['saas', 'server'];
-
-      newNodes.push({
-        id: `node-${i}`,
-        type: types[Math.floor(Math.random() * types.length)],
-        riskScore: Math.floor(Math.random() * 100),
-        openPorts: Array.from({ length: Math.floor(Math.random() * 5) }, () => Math.floor(Math.random() * 65535)),
-        patchAgeDays: Math.floor(Math.random() * 365),
-        activeAlerts: Array.from({ length: Math.floor(Math.random() * 3) }, (_, i) => `Alert ${i + 1}`),
-        position: [(Math.random() - 0.5) * area, (Math.random() - 0.5) * (area * 0.5), 0],
-      });
-    }
-    setNodes(newNodes);
+    setNodes(generateNodes(assetMode, zoomScope));
   }, [assetMode, zoomScope]);
   
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
