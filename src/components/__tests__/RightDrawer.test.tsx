@@ -24,6 +24,7 @@ describe('RightDrawer', () => {
     render(
       <RightDrawer isOpen={true} selectedNode={baseNode} onClose={() => {}} />
     );
-    expect(screen.getByText('Malware detected')).toBeInTheDocument();
+    const alert = screen.getByText('Malware detected');
+    expect(alert).to.exist;
   });
 });
