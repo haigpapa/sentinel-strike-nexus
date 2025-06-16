@@ -15,4 +15,16 @@ describe('ToggleSwitch', () => {
     await user.click(button);
     expect(onChange).toHaveBeenCalledWith(true);
   });
+
+  it('toggles off when initially on', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <ToggleSwitch id="t" label="Test" checked={true} onChange={onChange} />
+    );
+
+    const button = screen.getByRole('button');
+    await user.click(button);
+    expect(onChange).toHaveBeenCalledWith(false);
+  });
 });
