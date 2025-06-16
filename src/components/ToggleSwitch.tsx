@@ -43,8 +43,8 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ id, label, checked, onChang
             className={`
               absolute w-2 h-2 rounded-full right-1 transition-all duration-200
               ${checked 
-                ? 'top-3 bg-primary shadow-sm shadow-primary/80' 
-                : 'top-13 bg-[#6c7680]/50'
+                ? 'top-3 bg-primary shadow-sm shadow-primary/80'
+                : 'top-[3.25rem] bg-[#6c7680]/50'
               }
             `}
           />
