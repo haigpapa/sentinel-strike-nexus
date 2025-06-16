@@ -18,11 +18,11 @@ interface ControlState {
   zoomScope: string;
 }
 
-interface LeftControlPanelProps {
+type LeftControlPanelProps = {
   state: ControlState;
-  onChange: (key: keyof ControlState, value: any) => void;
+  onChange: <K extends keyof ControlState>(key: K, value: ControlState[K]) => void;
   onPulse: () => void;
-}
+};
 
 const LeftControlPanel: React.FC<LeftControlPanelProps> = ({ state, onChange, onPulse }) => {
   return (

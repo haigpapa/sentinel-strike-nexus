@@ -44,8 +44,9 @@ const Index = () => {
     zoomScope: 'Org-Wide',
   });
 
-  const handleControlChange = useCallback((key: keyof ControlState, value: any) => {
-    setControlState(prev => ({ ...prev, [key]: value }));
+  const handleControlChange = useCallback(
+    <K extends keyof ControlState>(key: K, value: ControlState[K]) => {
+      setControlState(prev => ({ ...prev, [key]: value }));
     
     // Simulate stream status changes based on controls
     if (key === 'threatSeverity' && value > 8) {
@@ -55,7 +56,9 @@ const Index = () => {
     } else {
       setStreamStatus('green');
     }
-  }, []);
+    },
+    []
+  );
 
   const handlePulse = useCallback(() => {
     console.log('Control pulse animation triggered');
